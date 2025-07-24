@@ -1,0 +1,19 @@
+@PACKAGE_INIT@
+
+include(CMakeFindDependencyMacro)
+
+# Find required dependencies
+find_dependency(Eigen3)
+
+# Find optional dependencies
+if(@SPARSE_SOLV_WITH_OPENMP@)
+    find_dependency(OpenMP)
+endif()
+
+if(@SPARSE_SOLV_WITH_PYTHON_BINDINGS@)
+    find_dependency(pybind11)
+endif()
+
+include("${CMAKE_CURRENT_LIST_DIR}/SparseSolvTargets.cmake")
+
+check_required_components(SparseSolv)

@@ -1,40 +1,285 @@
-﻿# SparseSolv
-SparseMatrix and Matrix Solvers including 
-- shifted-ICCG
-- multicolor ordering shifted ICCG
-- shifted-IC+MRTR
-- Eisenstat's Symmetric Gauss-Seidel-MRTR.
+# SparseSolv
 
-## SparseSolv
-Provide sparse matrix and its linear solver.
+[![Conan Package](https://img.shields.io/badge/conan-sparse--solv%2F0.1.0-blue)](https://conan.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## SparseSolvPy
-Python binding of the SparseSolv Using Pybind11
+High-performance sparse linear algebra library with iterative solvers including:
+- Shifted-ICCG (Incomplete Cholesky Conjugate Gradient)
+- Multicolor ordering shifted ICCG with ABMC (Algebraic Block Multi-Color)
+- Shifted-IC+MRTR (Incomplete Cholesky + Minimum Residual Three-term Recurrence)
+- Eisenstat's Symmetric Gauss-Seidel-MRTR
 
-## examples
-example:
-### Pybind_example.py
-A simple sample using python
-### Voxel FEM
-A simple C++ sample based on voxel elements.
-This method uses A-formula withough coulomb gauge and regularization terms.<br>
-Original A-fomula is solved by shifted-ICCG.
+## Overview
 
-Voxel Mesh data (original format) can be obtained from the following links:<br>
-https://u.muroran-it.ac.jp/it-elec-lab/open_data/voxel_data/MeshData_850000ele.zip<br>
-https://u.muroran-it.ac.jp/it-elec-lab/open_data/voxel_data/MeshData_2000000ele.zip<br>
-Please unzip the zip-file, and put "*.vxldata" files at "examples/VoxelFEM/MeshData/".<br>
-The  "Defines_Mesh.h" at "examples/VoxelFEM/" is overwrite by the same file in the zip-file.<br>
+SparseSolv is a comprehensive sparse matrix library optimized for electromagnetic finite element analysis and other scientific computing applications. It provides both C++ and Python APIs with support for Intel MKL acceleration and OpenMP parallelization.
 
-# Contributor
- - Takahiro Sato (Muroran institute of technology, JAPAN)
- - Shingo Hiruma (Kyoto University, JAPAN)
- - Kengo Sugahara (Kindai University, JAPAN)
- - Tomonori Tsuburaya (Fukuoka University, JAPAN)
+## Installation
 
-# 本ライブラリの説明 (explain in Japanese)
- 本ライブラリは、日本の磁界系数値解析の研究者による疎行列ソルバのライブラリです。電磁界有限要素法のソルバとして広く使われている。加速係数付きICCG法の線形ソルバです。また、MRTR法も実装されています。<br>
- 本ライブラリはpythonから使えるように、pybind11で一部機能をpython用ライブラリとして公開しており、疎行列クラスとソルバをpythonから使うことができます。<br>
- 
+### Using Conan (Recommended)
 
+#### Basic Installation
+```bash
+conan install --requires="sparse-solv/0.1.0"
+```
 
+#### With Python Bindings
+```bash
+conan install --requires="sparse-solv/0.1.0" -o sparse-solv/*:with_python_bindings=True
+```
+
+#### With Intel MKL Support
+```bash
+conan install --requires="sparse-solv/0.1.0" -o sparse-solv/*:with_mkl=True
+```
+
+#### All Features Enabled
+```bash
+conan install --requires="sparse-solv/0.1.0" \
+    -o sparse-solv/*:with_python_bindings=True \
+    -o sparse-solv/*:with_mkl=True \
+    -o sparse-solv/*:with_openmp=True
+```
+
+### Building from Source
+
+#### Requirements
+- CMake 3.15+
+- C++14 compatible compiler
+- Conan 2.0+
+
+#### Development Setup
+```bash
+git clone https://github.com/JP-MARs/SparseSolv.git
+cd SparseSolv
+
+# Install dependencies
+conan install . --build=missing
+
+# Build
+cmake --preset conan-default
+cmake --build --preset conan-release
+
+# Test
+conan create . --build=missing
+```
+
+## Usage
+
+### C++ API
+
+```cpp
+#include <sparse-solv.h>
+
+int main() {
+    // Create sparse matrix
+    auto mat = SparseSolv::createSparseMat(1000);
+    
+    // Add matrix entries
+    mat->add(0, 0, 2.0);
+    mat->add(0, 1, -1.0);
+    // ... add more entries
+    
+    // Finalize matrix structure
+    mat->fix();
+    
+    // Create solver
+    auto solver = SparseSolv::createSolver();
+    
+    // Configure solver
+    solver->setDiagScale(true);
+    solver->setSaveBest(true);
+    
+    // Solve system: A * x = b
+    std::vector<double> b(1000, 1.0);  // RHS vector
+    std::vector<double> x(1000, 0.0);  // Solution vector
+    
+    bool converged = solver->solveICCG(1000, 1e-6, 1000, 1.02, 
+                                       *mat, b, x);
+    
+    return converged ? 0 : 1;
+}
+```
+
+### C API
+
+```c
+#include <sparse-solv.h>
+
+int main() {
+    // Create matrix and solver
+    void* mat = sparse_mat_create(1000);
+    void* solver = mat_solvers_create();
+    
+    // Add matrix entries
+    sparse_mat_add(mat, 0, 0, 2.0);
+    sparse_mat_add(mat, 0, 1, -1.0);
+    
+    // Finalize and solve
+    sparse_mat_fix(mat);
+    
+    double* b = malloc(1000 * sizeof(double));
+    double* x = malloc(1000 * sizeof(double));
+    // ... initialize b and x
+    
+    bool success = mat_solvers_iccg(solver, 1000, 1e-6, 1000, 1.02, 
+                                    mat, b, x);
+    
+    // Cleanup
+    free(b);
+    free(x);
+    sparse_mat_destroy(mat);
+    mat_solvers_destroy(solver);
+    
+    return success ? 0 : 1;
+}
+```
+
+### Python API
+
+```python
+import SparseSolvPy
+
+# Create sparse matrix
+mat = SparseSolvPy.SparseMat(1000)
+
+# Add matrix entries
+mat.add(0, 0, 2.0)
+mat.add(0, 1, -1.0)
+# ... add more entries
+
+# Finalize matrix
+mat.fix()
+
+# Create and configure solver
+solver = SparseSolvPy.MatSolvers()
+solver.setDiagScale(True)
+solver.setSaveBest(True)
+
+# Solve system
+b = [1.0] * 1000  # RHS vector
+x = [0.0] * 1000  # Solution vector
+
+converged = solver.solveICCG(1000, 1e-6, 1000, 1.02, mat, b, x)
+print(f"Converged: {converged}")
+```
+
+## Package Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `shared` | `False` | Build shared library |
+| `fPIC` | `True` | Position independent code |
+| `with_python_bindings` | `False` | Build Python bindings |
+| `with_mkl` | `False` | Enable Intel MKL support |
+| `with_openmp` | `True` | Enable OpenMP parallelization |
+
+## CMake Integration
+
+If using SparseSolv in your CMake project:
+
+```cmake
+find_package(SparseSolv REQUIRED)
+target_link_libraries(your_target SparseSolv::sparse-solv)
+
+# For Python bindings component
+find_package(SparseSolv REQUIRED COMPONENTS python-bindings)
+target_link_libraries(your_target SparseSolv::python-bindings)
+```
+
+## Algorithms
+
+### ICCG (Incomplete Cholesky Conjugate Gradient)
+- Accelerated ICCG with shift parameter
+- Diagonal scaling support
+- Convergence monitoring with divergence detection
+
+### ABMC-ICCG (Algebraic Block Multi-Color ICCG)
+- Parallel ICCG using algebraic multi-color ordering
+- Block-based parallelization for improved cache efficiency
+- Suitable for large-scale problems on multi-core systems
+
+### IC-MRTR (Incomplete Cholesky + MRTR)
+- Three-term recurrence relation solver
+- Reduced memory requirements compared to CG methods
+- Stable convergence properties
+
+### SGS-MRTR (Symmetric Gauss-Seidel MRTR)
+- Eisenstat's symmetric Gauss-Seidel preconditioner
+- Combined with MRTR for improved convergence
+- Effective for poorly conditioned systems
+
+## Examples
+
+### VoxelFEM Example
+A complete electromagnetic finite element analysis example using voxel elements:
+
+```bash
+cd examples/VoxelFEM
+# Download mesh data from:
+# https://u.muroran-it.ac.jp/it-elec-lab/open_data/voxel_data/
+make
+./VoxelFEM
+```
+
+### Python Example
+```bash
+python examples/Pybind_example.py
+```
+
+## Performance Considerations
+
+### Compiler Optimizations
+- Intel compilers: Automatic IPO and MKL linking
+- GCC/Clang: `-O3` optimization with OpenMP support
+- Platform-specific SIMD optimizations through Eigen
+
+### Memory Usage
+- Compressed row storage (CRS) format
+- Efficient incomplete factorization storage
+- Configurable block sizes for cache optimization
+
+### Parallelization
+- OpenMP parallel matrix-vector operations
+- Multi-color ordering for parallel preconditioning
+- Thread-safe solver interfaces
+
+## Contributors
+
+- **Takahiro Sato** (Muroran Institute of Technology, JAPAN)
+- **Shingo Hiruma** (Kyoto University, JAPAN) - ABMC ordering implementation
+- **Kengo Sugahara** (Kindai University, JAPAN)
+- **Tomonori Tsuburaya** (Fukuoka University, JAPAN) - MRTR methods
+
+## License
+
+MIT License - see [LICENSE](LICENSE) file for details.
+
+## Citation
+
+If you use SparseSolv in your research, please cite:
+
+```bibtex
+@software{sparsesolv2024,
+  title={SparseSolv: High-Performance Sparse Linear Algebra Library},
+  author={Sato, Takahiro and Hiruma, Shingo and Sugahara, Kengo and Tsuburaya, Tomonori},
+  year={2024},
+  url={https://github.com/JP-MARs/SparseSolv}
+}
+```
+
+---
+
+## 本ライブラリの説明 (Japanese Description)
+
+本ライブラリは、日本の磁界系数値解析の研究者による疎行列ソルバのライブラリです。電磁界有限要素法のソルバとして広く使われている加速係数付きICCG法の線形ソルバです。また、MRTR法も実装されています。
+
+本ライブラリはConanパッケージとして提供され、C++とPython APIの両方をサポートしています。Intel MKLサポートとOpenMP並列化により、高性能な計算が可能です。
+
+### 主な特徴
+- 加速係数付きICCG法
+- マルチカラー順序付きICCG (ABMC)
+- IC+MRTR法およびSGS-MRTR法
+- Python bindings (pybind11)
+- Intel MKL対応
+- OpenMP並列化
+- Conanパッケージマネージャー対応
