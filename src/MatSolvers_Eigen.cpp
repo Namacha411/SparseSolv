@@ -1,7 +1,7 @@
 ﻿
 #include "MatSolversEigenMKL.hpp"
-#include <000_thirdparty/Eigen/IterativeLinearSolvers>
-#include <000_thirdparty/Eigen/SparseCholesky>	
+#include <Eigen/IterativeLinearSolvers>
+#include <Eigen/SparseCholesky>	
 
 
 /* 専用名前空間 */

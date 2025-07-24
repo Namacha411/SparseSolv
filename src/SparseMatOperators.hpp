@@ -2,7 +2,7 @@
 #define DEF_SPR_MAT_OPERATORS
 
 #include "SparseMatTMPL.hpp"
-#include <000_thirdparty/Eigen/Dense>
+#include <Eigen/Dense>
 #include <cfloat>
 
 /* 行列積などをOpenMP並列化するとき、onしてください */

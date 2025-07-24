@@ -8,7 +8,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ```bash
 # Install dependencies and build
 conan install . --build=missing
-cmake --preset conan-default
+cmake --preset conan-release
 cmake --build --preset conan-release
 
 # Test the package
@@ -18,24 +18,57 @@ conan create . --build=missing
 conan install . --build=missing -o sparse-solv/*:with_python_bindings=True -o sparse-solv/*:with_mkl=True
 ```
 
-### Development workflow
+### Development workflow with tests
 ```bash
+# Build with comprehensive test suite (now using GoogleTest)
+conan install . --build=missing -o sparse-solv/*:build_tests=True
+cmake --preset conan-release
+cmake --build --preset conan-release
+
+# Run all tests via CTest (recommended)
+cd build/Release && ctest --verbose
+
+# Run individual gtest executables with filtering capabilities
+./build/Release/test_sparse_mat --gtest_filter="*Creation*"
+./build/Release/test_sparse_mat_c --gtest_filter="*Complex*"
+./build/Release/test_mat_solvers --gtest_filter="*ICCG*"
+./build/Release/test_api --gtest_filter="*CAPI*"
+./build/Release/integration_test --gtest_filter="*Performance*"
+
+# Run all tests with XML output for CI
+./build/Release/test_sparse_mat --gtest_output=xml:test_results.xml
+
 # Quick build after making changes
 cmake --build --preset conan-release
 
-# Run the test package example
-./build/Release/test_package/example
+# Run the gtest-based test package example
+./test_package/build/gcc-12-x86_64-gnu17-release/example
 ```
 
-### Python bindings
+### Python bindings and tests
 ```bash
 # Build with Python bindings enabled
 conan install . --build=missing -o sparse-solv/*:with_python_bindings=True
-cmake --preset conan-default
+cmake --preset conan-release
 cmake --build --preset conan-release
 
 # Test Python bindings
 python examples/Pybind_example.py
+python tests/test_python_bindings.py
+```
+
+### Testing Commands
+```bash
+# Memory leak testing (requires Valgrind)
+valgrind --leak-check=full ./build/Release/test_sparse_mat
+
+# Performance testing
+./build/Release/integration_test
+
+# Test with different build configurations
+conan install . --build=missing -s build_type=Debug -o sparse-solv/*:build_tests=True
+cmake --preset conan-debug
+cmake --build --preset conan-debug
 ```
 
 ## Project Architecture
@@ -85,11 +118,13 @@ python examples/Pybind_example.py
 - `SPARSE_SOLV_WITH_MKL`: Intel MKL acceleration
 - `SPARSE_SOLV_WITH_OPENMP`: Parallel matrix operations
 - `SPARSE_SOLV_WITH_PYTHON_BINDINGS`: pybind11 Python interface
+- `SPARSE_SOLV_BUILD_TESTS`: Comprehensive test suite
 
 **Package Management**
 - Primary distribution via Conan packages
 - CMake config files for downstream integration
 - Header-only template components for performance
+- Automated testing with CTest integration
 
 ### Key Implementation Details
 
@@ -101,13 +136,60 @@ python examples/Pybind_example.py
 
 **Solver Configuration**: Configurable diagonal scaling, convergence monitoring, and divergence detection with best-solution preservation
 
-### Examples and Testing
+### Testing Infrastructure
+
+**Comprehensive Test Suite** (`tests/`)
+- `test_sparse_mat.cpp`: SparseMat functionality tests (creation, operations, large matrices)
+- `test_sparse_mat_c.cpp`: Complex matrix tests (SparseMatC functionality) 
+- `test_mat_solvers.cpp`: All solver algorithm tests (ICCG, IC-MRTR, SGS-MRTR)
+- `test_api.cpp`: C API validation and memory management tests
+- `integration_test.cpp`: Real-world scenarios, performance benchmarks
+- `test_python_bindings.py`: Python API tests with NumPy integration
+- `run_tests.sh`: Comprehensive test runner script
+
+**Test Package** (`test_package/`)
+- Conan package validation with basic matrix creation and solver instantiation
+- Tests both C++ and C API functionality
+- Validates package installation and linking
+
+**Examples and Testing**
 
 **VoxelFEM Example** (`examples/VoxelFEM/`)
 - Complete electromagnetic finite element analysis using voxel discretization
 - Demonstrates matrix assembly and solver usage in practical application
 - Requires external mesh data download
 
-**Test Package** (`test_package/`)
-- Conan package validation with basic matrix creation and solver instantiation
-- Tests both C++ and C API functionality
+**Python Example** (`examples/Pybind_example.py`)
+- Demonstrates Python API usage
+- Shows integration with NumPy arrays
+
+### Testing and Quality Assurance
+
+**Automated Testing Commands**
+When developing or modifying code, ALWAYS run tests:
+```bash
+# Essential test workflow
+conan install . --build=missing -o sparse-solv/*:build_tests=True
+cmake --preset conan-release
+cmake --build --preset conan-release
+cd build/Release && ctest --verbose
+```
+
+**Test Coverage Guidelines**
+- Unit tests cover all core matrix operations
+- Integration tests verify solver performance 
+- Memory leak detection with Valgrind when available
+- Python API tests ensure binding compatibility
+- API tests validate both C++ and C interfaces
+
+**Performance Validation**
+- `integration_test` includes performance benchmarks
+- Memory usage monitoring for large-scale problems
+- Convergence rate testing across different problem types
+
+**Development Best Practices**
+When making changes to SparseSolv code:
+1. ALWAYS run the test suite after modifications
+2. Use the commands above to build with tests enabled
+3. Verify both unit tests and integration tests pass
+4. Check for memory leaks in critical code paths

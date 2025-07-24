@@ -20,9 +20,9 @@ namespace SRLfem {
 }
 
 // Public C++ API - expose the main classes
-#include "SparseMat.hpp"
-#include "SparseMatC.hpp"
-#include "MatSolvers.hpp"
+#include "../src/SparseMat.hpp"
+#include "../src/SparseMatC.hpp"
+#include "../src/MatSolvers.hpp"
 
 // C API for language bindings
 extern "C" {
@@ -43,5 +43,6 @@ extern "C" {
 // Convenience functions
 namespace SparseSolv {
     SPARSE_SOLV_EXPORT std::unique_ptr<SRLfem::SparseMat> createSparseMat(SRLfem::slv_int size);
+    SPARSE_SOLV_EXPORT std::unique_ptr<SRLfem::SparseMatC> createSparseMatC(SRLfem::slv_int size);
     SPARSE_SOLV_EXPORT std::unique_ptr<SRLfem::MatSolvers> createSolver();
 }

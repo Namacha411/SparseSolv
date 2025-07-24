@@ -59,8 +59,14 @@ conan install . --build=missing
 cmake --preset conan-default
 cmake --build --preset conan-release
 
-# Test
+# Test the package
 conan create . --build=missing
+
+# Build with tests enabled for development
+conan install . --build=missing -o sparse-solv/*:build_tests=True
+cmake --preset conan-release
+cmake --build --preset conan-release
+ctest --test-dir build/Release
 ```
 
 ## Usage
@@ -163,6 +169,46 @@ converged = solver.solveICCG(1000, 1e-6, 1000, 1.02, mat, b, x)
 print(f"Converged: {converged}")
 ```
 
+## Testing
+
+SparseSolv includes a comprehensive test suite covering all major functionality:
+
+### Running Tests
+
+```bash
+# Install with tests enabled
+conan install . --build=missing -o sparse-solv/*:build_tests=True
+
+# Configure and build with tests
+cmake --preset conan-release
+cmake --build --preset conan-release
+
+# Run all tests with CTest
+cd build/Release && ctest
+
+# Run individual test executables
+./build/Release/test_sparse_mat      # SparseMat functionality
+./build/Release/test_sparse_mat_c    # Complex matrix functionality  
+./build/Release/test_mat_solvers     # Solver algorithms
+./build/Release/test_api             # C API testing
+./build/Release/integration_test     # Integration and performance tests
+```
+
+### Python Binding Tests
+
+```bash
+# Requires Python bindings to be built
+python tests/test_python_bindings.py
+```
+
+### Test Coverage
+
+- **Unit Tests**: Core matrix operations, solver algorithms, API functionality
+- **Integration Tests**: Real-world problem scenarios, performance benchmarks
+- **Memory Tests**: Memory leak detection with Valgrind (when available)
+- **API Tests**: Both C++ and C API validation
+- **Python Tests**: Python binding functionality and NumPy integration
+
 ## Package Options
 
 | Option | Default | Description |
@@ -172,6 +218,7 @@ print(f"Converged: {converged}")
 | `with_python_bindings` | `False` | Build Python bindings |
 | `with_mkl` | `False` | Enable Intel MKL support |
 | `with_openmp` | `True` | Enable OpenMP parallelization |
+| `build_tests` | `False` | Build comprehensive test suite |
 
 ## CMake Integration
 

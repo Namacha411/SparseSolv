@@ -23,18 +23,20 @@ class SparseSolvConan(ConanFile):
         "fPIC": [True, False],
         "with_python_bindings": [True, False],
         "with_mkl": [True, False],
-        "with_openmp": [True, False]
+        "with_openmp": [True, False],
+        "build_tests": [True, False]
     }
     default_options = {
         "shared": False, 
         "fPIC": True,
         "with_python_bindings": False,
         "with_mkl": False,
-        "with_openmp": True
+        "with_openmp": True,
+        "build_tests": False
     }
 
     # Sources are located in the same place as this recipe
-    exports_sources = "CMakeLists.txt", "src/*", "include/*", "LICENSE", "README.md"
+    exports_sources = "CMakeLists.txt", "src/*", "include/*", "cmake/*", "tests/*", "LICENSE", "README.md"
 
     def config_options(self):
         if self.settings.os == "Windows":
@@ -51,6 +53,9 @@ class SparseSolvConan(ConanFile):
         # Optional dependencies based on options
         if self.options.with_python_bindings:
             self.requires("pybind11/2.13.6")
+        
+        if self.options.build_tests:
+            self.requires("gtest/1.14.0")
 
     def system_requirements(self):
         if self.options.with_mkl:
@@ -69,6 +74,7 @@ class SparseSolvConan(ConanFile):
         tc.variables["SPARSE_SOLV_WITH_PYTHON_BINDINGS"] = self.options.with_python_bindings
         tc.variables["SPARSE_SOLV_WITH_MKL"] = self.options.with_mkl
         tc.variables["SPARSE_SOLV_WITH_OPENMP"] = self.options.with_openmp
+        tc.variables["SPARSE_SOLV_BUILD_TESTS"] = self.options.build_tests
         tc.generate()
 
     def build(self):

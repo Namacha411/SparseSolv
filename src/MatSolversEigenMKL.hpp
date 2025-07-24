@@ -7,7 +7,7 @@
 
 #include "SparseMat.hpp"
 #include "SparseMatC.hpp"
-#include <000_thirdparty/Eigen/Core>
+#include <Eigen/Core>
 
 
 /* オリジナル名前空間(静止器/回転機FEMライブラリ) */

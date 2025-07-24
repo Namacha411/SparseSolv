@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.15)
 project(SparseSolv VERSION 0.1.0 LANGUAGES CXX)
 
 # Set C++ standard
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # Options (set by conanfile.py through CMakeToolchain)
@@ -44,7 +44,7 @@ add_library(sparse-solv ${SPARSESOLV_SOURCES})
 
 # Set target properties
 set_target_properties(sparse-solv PROPERTIES
-    CXX_STANDARD 14
+    CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
     VERSION ${PROJECT_VERSION}
     SOVERSION ${PROJECT_VERSION_MAJOR}
@@ -137,6 +137,32 @@ if(SPARSE_SOLV_WITH_PYTHON_BINDINGS)
     
     # Install Python module
     install(TARGETS SparseSolvPy DESTINATION .)
+endif()
+
+# Testing (optional)
+option(SPARSE_SOLV_BUILD_TESTS "Build tests" OFF)
+
+if(SPARSE_SOLV_BUILD_TESTS)
+    enable_testing()
+    
+    # Test executables
+    set(TEST_SOURCES
+        tests/test_sparse_mat.cpp
+        tests/test_sparse_mat_c.cpp
+        tests/test_mat_solvers.cpp
+        tests/test_api.cpp
+        tests/integration_test.cpp
+    )
+    
+    foreach(test_source ${TEST_SOURCES})
+        get_filename_component(test_name ${test_source} NAME_WE)
+        add_executable(${test_name} ${test_source})
+        target_link_libraries(${test_name} sparse-solv)
+        target_include_directories(${test_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/include)
+        add_test(NAME ${test_name} COMMAND ${test_name})
+    endforeach()
+    
+    message(STATUS "Building tests enabled")
 endif()
 
 # Installation

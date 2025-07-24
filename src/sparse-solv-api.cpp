@@ -1,5 +1,6 @@
 #include "sparse-solv.h"
 #include "SparseMat.hpp"
+#include "SparseMatC.hpp"
 #include "MatSolvers.hpp"
 
 using namespace SRLfem;
@@ -67,6 +68,10 @@ extern "C" {
 namespace SparseSolv {
     std::unique_ptr<SparseMat> createSparseMat(slv_int size) {
         return std::make_unique<SparseMat>(size);
+    }
+    
+    std::unique_ptr<SparseMatC> createSparseMatC(slv_int size) {
+        return std::make_unique<SparseMatC>(size);
     }
     
     std::unique_ptr<MatSolvers> createSolver() {
