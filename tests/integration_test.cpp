@@ -8,12 +8,7 @@
 
 using dcomplex = std::complex<double>;
 
-// C API functions for mixed API test
-extern "C" {
-    void* mat_solvers_create();
-    void mat_solvers_destroy(void* solver);
-    void mat_solvers_set_diag_scale(void* solver, int enable);
-}
+// C API functions are already declared in sparse-solv.h
 
 class IntegrationTest : public ::testing::Test {
 protected:
@@ -218,7 +213,7 @@ TEST_F(IntegrationTest, SolverComparison) {
         solver->setSaveLog(true);
         
         auto start = std::chrono::high_resolution_clock::now();
-        bool converged = solver->solveSGSMRTR(n, 1e-8, 100, 1.0, *mat, rhs, solution);
+        bool converged = solver->solveSGSMRTR(n, 1e-8, 100, *mat, rhs, solution);
         auto end = std::chrono::high_resolution_clock::now();
         
         ASSERT_TRUE(converged);
@@ -250,7 +245,7 @@ TEST_F(IntegrationTest, MixedAPIUsage) {
     // Use C API solver
     void* c_solver = mat_solvers_create();
     ASSERT_NE(c_solver, nullptr);
-    mat_solvers_set_diag_scale(c_solver, 1);
+    // Note: mat_solvers_set_diag_scale not implemented in C API
     
     // Create problem
     double rhs[4] = {1.0, 0.0, 0.0, 1.0};

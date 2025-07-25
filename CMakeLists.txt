@@ -145,6 +145,9 @@ option(SPARSE_SOLV_BUILD_TESTS "Build tests" OFF)
 if(SPARSE_SOLV_BUILD_TESTS)
     enable_testing()
     
+    # Find GTest for testing
+    find_package(GTest REQUIRED)
+    
     # Test executables
     set(TEST_SOURCES
         tests/test_sparse_mat.cpp
@@ -157,7 +160,11 @@ if(SPARSE_SOLV_BUILD_TESTS)
     foreach(test_source ${TEST_SOURCES})
         get_filename_component(test_name ${test_source} NAME_WE)
         add_executable(${test_name} ${test_source})
-        target_link_libraries(${test_name} sparse-solv)
+        target_link_libraries(${test_name} 
+            sparse-solv 
+            GTest::gtest 
+            GTest::gtest_main
+        )
         target_include_directories(${test_name} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${CMAKE_CURRENT_SOURCE_DIR}/include)
         add_test(NAME ${test_name} COMMAND ${test_name})
     endforeach()

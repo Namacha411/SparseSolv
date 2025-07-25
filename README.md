@@ -1,7 +1,6 @@
 # SparseSolv
 
 [![Conan Package](https://img.shields.io/badge/conan-sparse--solv%2F0.1.0-blue)](https://conan.io/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 High-performance sparse linear algebra library with iterative solvers including:
 - Shifted-ICCG (Incomplete Cholesky Conjugate Gradient)
@@ -44,7 +43,7 @@ conan install --requires="sparse-solv/0.1.0" \
 
 #### Requirements
 - CMake 3.15+
-- C++14 compatible compiler
+- C++17 compatible compiler
 - Conan 2.0+
 
 #### Development Setup
@@ -171,26 +170,36 @@ print(f"Converged: {converged}")
 
 ## Testing
 
-SparseSolv includes a comprehensive test suite covering all major functionality:
+SparseSolv includes a comprehensive test suite built with **Google Test (gtest)** covering all major functionality:
 
 ### Running Tests
 
 ```bash
-# Install with tests enabled
+# Install with tests enabled (includes gtest dependency)
 conan install . --build=missing -o sparse-solv/*:build_tests=True
 
 # Configure and build with tests
 cmake --preset conan-release
 cmake --build --preset conan-release
 
-# Run all tests with CTest
-cd build/Release && ctest
+# Run all tests with CTest (recommended)
+cd build/Release && ctest --verbose
 
-# Run individual test executables
-./build/Release/test_sparse_mat      # SparseMat functionality
-./build/Release/test_sparse_mat_c    # Complex matrix functionality  
-./build/Release/test_mat_solvers     # Solver algorithms
-./build/Release/test_api             # C API testing
+# Run individual gtest executables with filtering capabilities
+./build/Release/test_sparse_mat --gtest_filter="*Creation*"
+./build/Release/test_sparse_mat_c --gtest_filter="*Complex*"
+./build/Release/test_mat_solvers --gtest_filter="*ICCG*"
+./build/Release/test_api --gtest_filter="*CAPI*"
+./build/Release/integration_test --gtest_filter="*Performance*"
+
+# Run all tests with XML output for CI/CD
+./build/Release/test_sparse_mat --gtest_output=xml:test_results.xml
+
+# Run basic test executables (all tests)
+./build/Release/test_sparse_mat      # SparseMat functionality tests
+./build/Release/test_sparse_mat_c    # Complex matrix functionality tests
+./build/Release/test_mat_solvers     # Solver algorithm tests
+./build/Release/test_api             # C API validation tests
 ./build/Release/integration_test     # Integration and performance tests
 ```
 
@@ -203,11 +212,21 @@ python tests/test_python_bindings.py
 
 ### Test Coverage
 
+Built with **Google Test framework** for robust testing:
+
 - **Unit Tests**: Core matrix operations, solver algorithms, API functionality
 - **Integration Tests**: Real-world problem scenarios, performance benchmarks
 - **Memory Tests**: Memory leak detection with Valgrind (when available)
-- **API Tests**: Both C++ and C API validation
+- **API Tests**: Both C++ and C API validation with comprehensive fixtures
 - **Python Tests**: Python binding functionality and NumPy integration
+
+### Test Features
+
+- **gtest Fixtures**: Organized test classes with setup/teardown
+- **Rich Assertions**: `ASSERT_EQ`, `ASSERT_NEAR`, `ASSERT_TRUE`, etc.
+- **Test Filtering**: Run specific tests with `--gtest_filter="pattern"`
+- **XML Output**: CI/CD integration with `--gtest_output=xml`
+- **Detailed Reporting**: Enhanced failure diagnostics and test output
 
 ## Package Options
 

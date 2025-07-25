@@ -170,7 +170,7 @@ TEST_F(MatSolversTest, SGSMRTRSolver) {
   std::vector<double> solution(3, 0.0);
 
   auto solver = SparseSolv::createSolver();
-  bool converged = solver->solveSGSMRTR(3, 1e-8, 100, 1.0, *mat, rhs, solution);
+  bool converged = solver->solveSGSMRTR(3, 1e-8, 100, *mat, rhs, solution);
 
   ASSERT_TRUE(converged);
 

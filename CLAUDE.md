@@ -138,17 +138,22 @@ cmake --build --preset conan-debug
 
 ### Testing Infrastructure
 
-**Comprehensive Test Suite** (`tests/`)
-- `test_sparse_mat.cpp`: SparseMat functionality tests (creation, operations, large matrices)
-- `test_sparse_mat_c.cpp`: Complex matrix tests (SparseMatC functionality) 
-- `test_mat_solvers.cpp`: All solver algorithm tests (ICCG, IC-MRTR, SGS-MRTR)
-- `test_api.cpp`: C API validation and memory management tests
-- `integration_test.cpp`: Real-world scenarios, performance benchmarks
+**Comprehensive Test Suite** (`tests/`) - **Built with Google Test (gtest)**
+- `test_sparse_mat.cpp`: SparseMat functionality tests with `SparseMatTest` fixture
+  - Creation, operations, large matrices, empty operations
+- `test_sparse_mat_c.cpp`: Complex matrix tests with `SparseMatCTest` fixture
+  - Complex operations, Hermitian matrices, mixed real/complex
+- `test_mat_solvers.cpp`: All solver algorithm tests with `MatSolversTest` fixture
+  - ICCG, IC-MRTR, SGS-MRTR solvers with helper methods for vector comparisons
+- `test_api.cpp`: C API validation with `CAPITest` fixture
+  - Memory management, function validation, error handling
+- `integration_test.cpp`: Real-world scenarios with `IntegrationTest` fixture
+  - FEM-like systems, performance benchmarks, solver comparisons
 - `test_python_bindings.py`: Python API tests with NumPy integration
-- `run_tests.sh`: Comprehensive test runner script
 
-**Test Package** (`test_package/`)
-- Conan package validation with basic matrix creation and solver instantiation
+**Test Package** (`test_package/`) - **Google Test enabled**
+- Conan package validation with gtest-based tests
+- `TestPackageTest` fixture for organized validation
 - Tests both C++ and C API functionality
 - Validates package installation and linking
 
@@ -168,28 +173,62 @@ cmake --build --preset conan-debug
 **Automated Testing Commands**
 When developing or modifying code, ALWAYS run tests:
 ```bash
-# Essential test workflow
+# Essential test workflow with gtest
 conan install . --build=missing -o sparse-solv/*:build_tests=True
 cmake --preset conan-release
 cmake --build --preset conan-release
 cd build/Release && ctest --verbose
 ```
 
+**Google Test Features**
+- **Test Fixtures**: Organized test classes with setup/teardown methods
+- **Rich Assertions**: `ASSERT_EQ`, `ASSERT_NEAR`, `ASSERT_TRUE`, `EXPECT_*` variants
+- **Test Filtering**: Run specific tests with `--gtest_filter="pattern"`
+- **XML Output**: CI/CD integration with `--gtest_output=xml:results.xml`
+- **Parameterized Tests**: Data-driven testing capabilities
+- **Death Tests**: Testing error conditions and crashes
+
 **Test Coverage Guidelines**
-- Unit tests cover all core matrix operations
-- Integration tests verify solver performance 
+- Unit tests cover all core matrix operations using gtest fixtures
+- Integration tests verify solver performance with detailed benchmarking
 - Memory leak detection with Valgrind when available
 - Python API tests ensure binding compatibility
-- API tests validate both C++ and C interfaces
+- API tests validate both C++ and C interfaces with comprehensive fixtures
 
 **Performance Validation**
-- `integration_test` includes performance benchmarks
+- `IntegrationTest` fixture includes performance benchmarks
 - Memory usage monitoring for large-scale problems
 - Convergence rate testing across different problem types
+- Solver comparison tests with timing measurements
 
 **Development Best Practices**
 When making changes to SparseSolv code:
 1. ALWAYS run the test suite after modifications
-2. Use the commands above to build with tests enabled
+2. Use the gtest commands above to build with tests enabled
 3. Verify both unit tests and integration tests pass
-4. Check for memory leaks in critical code paths
+4. Use gtest filtering to run specific test categories during development
+5. Check for memory leaks in critical code paths
+6. Utilize gtest's detailed error reporting for debugging
+
+### Google Test Migration Notes
+
+**Migration Summary**: The test suite has been successfully migrated from custom test macros to Google Test framework:
+
+**Key Changes**:
+- **C++ Standard**: Upgraded from C++14 to C++17 to meet gtest requirements
+- **Dependencies**: Added `gtest/1.14.0` via Conan
+- **Test Structure**: Converted all tests to use gtest fixtures and assertions
+- **Build System**: Updated CMakeLists.txt files to link with gtest libraries
+- **API Enhancements**: Added missing `createSparseMatC()` function
+
+**Test Organization**:
+- Each test file now uses a dedicated test fixture class (e.g., `SparseMatTest`, `MatSolversTest`)
+- Helper methods for vector comparisons and complex number assertions
+- Proper setup/teardown methods for test initialization
+
+**Benefits of Migration**:
+- Better test organization and maintainability
+- Rich assertion macros with detailed error messages
+- Test filtering and selection capabilities
+- XML output for CI/CD integration
+- Parameterized testing support for future enhancements

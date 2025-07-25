@@ -89,6 +89,11 @@ Eigen::VectorXcd SparseMatC::operator*(const Eigen::VectorXcd& vec) const{
 	Eigen::VectorXcd ans = matrix.matrix * vec;
 	return ans;
 }
+std::vector<dcomplex> SparseMatC::operator*(const std::vector<dcomplex>& vec) const{
+	Eigen::VectorXcd eigen_vec = Eigen::Map<const Eigen::VectorXcd>(vec.data(), vec.size());
+	Eigen::VectorXcd ans = matrix.matrix * eigen_vec;
+	return std::vector<dcomplex>(ans.data(), ans.data() + ans.size());
+}
 
 
 /*//=======================================================

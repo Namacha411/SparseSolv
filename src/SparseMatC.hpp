@@ -56,6 +56,7 @@ public:
 	Eigen::VectorXcd operator*(const Eigen::VectorXd& vec) const;	
 	Eigen::VectorXcd operator*(const Eigen::VectorXcd& vec) const;	
 	dcomplex* operator*(const dcomplex* vec) const;
+	std::vector<dcomplex> operator*(const std::vector<dcomplex>& vec) const;
 	void operator*=(const double x) {matrix *=(x);};
 	void operator*=(const dcomplex x) {matrix *=(x);};
 	SparseMatC operator*(const double x) const;

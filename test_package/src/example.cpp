@@ -3,16 +3,7 @@
 #include <iostream>
 #include <vector>
 
-// C API declarations for test package
-extern "C" {
-    void* sparse_mat_create(int n);
-    void sparse_mat_destroy(void* mat);
-    void sparse_mat_add(void* mat, int i, int j, double val);
-    void sparse_mat_fix(void* mat);
-    
-    void* mat_solvers_create();
-    void mat_solvers_destroy(void* solver);
-}
+// C API functions are already declared in sparse-solv.h
 
 class TestPackageTest : public ::testing::Test {
 protected:
