@@ -5,11 +5,28 @@ SparseMatrix and Matrix Solvers including
 - shifted-IC+MRTR
 - Eisenstat's Symmetric Gauss-Seidel-MRTR.
 
+
 ## SparseSolv
 Provide sparse matrix and its linear solver.
 
 ## SparseSolvPy
 Python binding of the SparseSolv Using Pybind11
+
+## requirements
+
+- clang-format
+- uv (optional)
+
+## build
+
+```sh
+# build python
+uv sync
+
+mkdir build & cd build
+cmake ..
+make
+```
 
 ## examples
 example:
@@ -35,6 +52,3 @@ The  "Defines_Mesh.h" at "examples/VoxelFEM/" is overwrite by the same file in t
 # 本ライブラリの説明 (explain in Japanese)
  本ライブラリは、日本の磁界系数値解析の研究者による疎行列ソルバのライブラリです。電磁界有限要素法のソルバとして広く使われている。加速係数付きICCG法の線形ソルバです。また、MRTR法も実装されています。<br>
  本ライブラリはpythonから使えるように、pybind11で一部機能をpython用ライブラリとして公開しており、疎行列クラスとソルバをpythonから使うことができます。<br>
- 
-
-
