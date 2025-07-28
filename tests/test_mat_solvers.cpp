@@ -661,8 +661,9 @@ TEST_F(ABMCICCGTest, ParameterSensitivityTest) {
           matrix_size, conv_cri, max_iter, accera, *matrix, rhs, solution_abmc,
           num_blocks, num_colors);
       auto end_abmc = std::chrono::high_resolution_clock::now();
-      auto duration_abmc = std::chrono::duration_cast<std::chrono::milliseconds>(
-          end_abmc - start_abmc);
+      auto duration_abmc =
+          std::chrono::duration_cast<std::chrono::milliseconds>(end_abmc -
+                                                                start_abmc);
 
       ASSERT_TRUE(abmc_converged)
           << "ABMC-ICCG failed to converge with params (" << num_blocks << ", "
