@@ -23,6 +23,8 @@ foreach(test_source ${TEST_SOURCES})
         GTest::gtest 
         GTest::gtest_main
     )
+    # Add optimization flags for test performance
+    target_compile_options(${test_name} PRIVATE -O3 -DNDEBUG)
     add_test(NAME ${test_name} COMMAND ${test_name})
 endforeach()
 
@@ -33,4 +35,6 @@ target_link_libraries(integration_test
     GTest::gtest 
     GTest::gtest_main
 )
+# Add optimization flags for integration test performance
+target_compile_options(integration_test PRIVATE -O3 -DNDEBUG)
 add_test(NAME integration_test COMMAND integration_test)

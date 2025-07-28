@@ -86,7 +86,7 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")
     endif()
 else()
     # GCC/Clang
-    target_compile_options(sparse-solv PRIVATE -O3)
+    target_compile_options(sparse-solv PRIVATE -O3 -DNDEBUG)
     if(SPARSE_SOLV_WITH_OPENMP)
         target_link_libraries(sparse-solv PUBLIC OpenMP::OpenMP_CXX)
     endif()
