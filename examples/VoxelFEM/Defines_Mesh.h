@@ -45,17 +45,17 @@ constexpr int MESH_Y1 = ((int)((CHANGE_Y / Y_L1)));
 constexpr int MESH_Z1 = ((int)((CHANGE_Z / Z_L1)));
 
 /* 粗いメッシュの数X */
-constexpr int MESH_X2 = ((int)( (X_WIDTH-CHANGE_X) / X_L2 ));
+constexpr int MESH_X2 = ((int)((X_WIDTH - CHANGE_X) / X_L2));
 /* 粗いメッシュの数Y */
-constexpr int MESH_Y2 = ((int)( (Y_WIDTH-CHANGE_Y) / Y_L2 ));
+constexpr int MESH_Y2 = ((int)((Y_WIDTH - CHANGE_Y) / Y_L2));
 /* 粗いメッシュの数Z */
-constexpr int MESH_Z2 = ((int)( (Z_WIDTH-CHANGE_Z) / Z_L2 ));
+constexpr int MESH_Z2 = ((int)((Z_WIDTH - CHANGE_Z) / Z_L2));
 
 /* メッシュの数合計X */
-constexpr int TOTAL_MESH_X = (MESH_X1+MESH_X2);
+constexpr int TOTAL_MESH_X = (MESH_X1 + MESH_X2);
 /* メッシュの数合計Y */
-constexpr int TOTAL_MESH_Y = (MESH_Y1+MESH_Y2);
+constexpr int TOTAL_MESH_Y = (MESH_Y1 + MESH_Y2);
 /* メッシュの数合計Z */
-constexpr int TOTAL_MESH_Z = (MESH_Z1+MESH_Z2);
+constexpr int TOTAL_MESH_Z = (MESH_Z1 + MESH_Z2);
 
 #endif
