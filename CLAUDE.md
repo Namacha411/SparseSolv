@@ -52,9 +52,13 @@ conan install . --build=missing -o sparse-solv/*:with_python_bindings=True
 cmake --preset conan-release
 cmake --build --preset conan-release
 
-# Test Python bindings
-python examples/Pybind_example.py
-python tests/test_python_bindings.py
+# Test Python bindings using uv
+uv run python examples/Pybind_example.py
+uv run python tests/test_python_bindings.py
+
+# Alternative: using direct python (if module path configured)
+# python examples/Pybind_example.py
+# python tests/test_python_bindings.py
 ```
 
 ### Testing Commands
@@ -165,8 +169,16 @@ cmake --build --preset conan-debug
 - Requires external mesh data download
 
 **Python Example** (`examples/Pybind_example.py`)
-- Demonstrates Python API usage
+- Demonstrates modern Python API usage with `uv run`
 - Shows integration with NumPy arrays
+- Tests both real and complex sparse matrices
+- Examples of ICCG, IC-MRTR, and SGS-MRTR solvers
+
+**Python API Features**
+- Modern function-based solver interface returning (solution, converged) tuples
+- Support for both real (`SparseMat`) and complex (`SparseMatC`) sparse matrices
+- Integration with Python lists and NumPy arrays
+- Automatic module path detection in examples and tests
 
 ### Testing and Quality Assurance
 
@@ -209,6 +221,19 @@ When making changes to SparseSolv code:
 4. Use gtest filtering to run specific test categories during development
 5. Check for memory leaks in critical code paths
 6. Utilize gtest's detailed error reporting for debugging
+7. Test Python bindings with `uv run python tests/test_python_bindings.py`
+
+**Troubleshooting Python Bindings**
+If Python examples fail to run:
+1. Ensure the project is built with Python bindings enabled:
+   ```bash
+   conan install . --build=missing -o sparse-solv/*:with_python_bindings=True
+   cmake --preset conan-release
+   cmake --build --preset conan-release
+   ```
+2. Use `uv` to manage Python dependencies: `uv add numpy`
+3. The module is automatically located via sys.path in examples and tests
+4. Check that `SparseSolvPy.cpython-*.so` exists in `build/Release/`
 
 ### Google Test Migration Notes
 

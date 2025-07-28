@@ -51,6 +51,7 @@ set_target_properties(sparse-solv PROPERTIES
     PUBLIC_HEADER "include/sparse-solv.h"
 )
 
+
 # Include directories
 target_include_directories(sparse-solv 
     PUBLIC 
@@ -98,7 +99,6 @@ if(SPARSE_SOLV_WITH_PYTHON_BINDINGS)
     
     set(PYTHON_BINDING_SOURCES
         src/python/pybind_SparseMatPy.cpp
-        src/python/pybind_MatSolversPy.cpp
     )
     
     pybind11_add_module(SparseSolvPy ${PYTHON_BINDING_SOURCES})
@@ -107,7 +107,9 @@ if(SPARSE_SOLV_WITH_PYTHON_BINDINGS)
     target_link_libraries(SparseSolvPy PRIVATE sparse-solv)
     
     # Set target properties
-    target_compile_definitions(SparseSolvPy PRIVATE VERSION_INFO="${PROJECT_VERSION}")
+    target_compile_definitions(SparseSolvPy PRIVATE 
+        VERSION_INFO="${PROJECT_VERSION}"
+        SPARSE_SOLV_WITH_PYTHON_BINDINGS=1)
     
     # Compiler-specific flags for Python bindings
     if(CMAKE_CXX_COMPILER_ID MATCHES "Intel")

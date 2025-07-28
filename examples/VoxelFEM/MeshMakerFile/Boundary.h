@@ -355,7 +355,7 @@ void ICCG::Cholesky(int *clmn_size, int **column, double **matrixA,
       J_count[j]++;
       //				cout << "Mat L is " << i << ", " << jj
       //<< ", " << matrixL[i][jj] << ", " << matrixA[i][jj] <<endl;
-      //if(isnan( matrixL[i][jj] ) || isinf(matrixL[i][jj])) exit(1); }else{
+      // if(isnan( matrixL[i][jj] ) || isinf(matrixL[i][jj])) exit(1); }else{
       // cout <<
       //"!?!?!?!?!?!?! ==> "<< i << ", " << columnL[i][jj] << " & " <<
       // matrixL[i][jj] << endl;

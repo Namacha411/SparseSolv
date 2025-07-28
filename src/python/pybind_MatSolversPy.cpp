@@ -1,5 +1,11 @@
 #include "../MatSolvers.hpp"
 #include "../SparseMatOperators.hpp"
+#include <pybind11/complex.h>
+#include <pybind11/numpy.h>
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+
+namespace py = pybind11;
 
 /* 専用名前空間 */
 namespace SRLfem {
